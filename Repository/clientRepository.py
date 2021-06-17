@@ -1,8 +1,32 @@
+import boto3
 
-if not dynamodb:
-        dynamodb = boto3.resource('dynamodb', 
-                                  aws_access_key_id="anything",
-                                  aws_secret_access_key="anything",
-                                  region_name='us-west-2', 
-                                  endpoint_url="http://localhost:8000")
+from Model.user import user
+from Model.clients import clients
+from Data.dataValue import dataValue
 
+dt = dataValue()
+
+class clientRepository:
+    #repository getData
+
+    def getAllClients(self):
+        
+        table = dt.retTable('Clients')
+        response = table.scan()
+
+        return response
+
+
+    def putCLient(self, client):
+        input = {
+            'document': client.document,
+            'name': client.name,
+            'phone': client.phone,
+            'email': client.email
+         }
+        
+        table = dt.retTable('Clients')
+        
+        response = table.put_item(Item=input)
+
+        return response

@@ -1,19 +1,16 @@
 import boto3
 
-from Model.user import user
 from Model.clients import clients
+from Repository.clientRepository import clientRepository
 
 class clientController():
-
-    def getAllClients():
-        # criar regras de negocio
-        dynamodb = boto3.resource('dynamodb', 
-                                aws_access_key_id="anything",
-                                aws_secret_access_key="anything",
-                                region_name='us-west-2', 
-                                endpoint_url="http://localhost:8000")
-
-        table = dynamodb.Table('Clients')
-        response = table.scan()
-
+    def getAllClients(self):
+        cliRep = clientRepository()
+        response = cliRep.getAllClients()
         return response
+
+    def putClient(self, clients):
+        cliRep = clientRepository()
+        response = cliRep.putCLient(clients)
+        return response
+
