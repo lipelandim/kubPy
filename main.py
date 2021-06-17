@@ -1,6 +1,11 @@
+from pprint import pprint
 from fastapi import FastAPI
+import boto3
 
 from Model.user import user
+from Model.clients import clients
+from Controller.clientController import clientController
+
 app = FastAPI()
 
 # Rota Raiz
@@ -35,3 +40,102 @@ def insere_usuario(user: user):
     # criar regras de negocio
     base_de_dados.append(user)
     return user
+
+
+# Rota Insere
+@app.post("/clients")
+def insere_usuario(clients: clients):
+    # criar regras de negocio
+    put_client(clients.document, clients.name, clients.email, clients.phone)
+    return clients
+
+
+
+# Rota Insere
+@app.get("/clients")
+def search_all_clients():
+    # criar regras de negocio
+    cliContr = clientController()
+    response = cliContr.getAllClients()
+    return response
+
+
+
+
+#add new client 
+def put_client(document, name, email, phone, dynamodb=None):
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb', 
+                                  aws_access_key_id="anything",
+                                  aws_secret_access_key="anything",
+                                  region_name='us-west-2', 
+                                  endpoint_url="http://localhost:8000")
+
+    input = {
+        'document': document,
+        'name': name,
+        'phone': phone,
+        'email': email
+    }
+
+    table = dynamodb.Table('Clients')
+    response = table.put_item(Item=input)
+    return response
+
+
+
+
+#criar tabela clients
+
+ 
+
+'''
+
+# Rota Insere
+@app.post("/createtableclients")
+def insere_usuario():
+    # criar tabela
+    return create_clients_table()
+    
+
+def create_clients_table(dynamodb=None):
+    if not dynamodb:
+           dynamodb = boto3.resource('dynamodb', 
+                                  aws_access_key_id="anything",
+                                  aws_secret_access_key="anything",
+                                  region_name='us-west-2', 
+                                  endpoint_url="http://localhost:8000")
+
+
+    table = dynamodb.create_table(
+        TableName='Clients',
+        KeySchema=[
+            {
+                'AttributeName': 'document',
+                'KeyType': 'HASH'  # Partition key
+            },
+            {
+                'AttributeName': 'name',
+                'KeyType': 'RANGE'  # Sort key
+            }
+        ],
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'document',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'name',
+                'AttributeType': 'S'
+            },
+
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
+        }
+    )
+    return table
+
+
+'''
